@@ -1,0 +1,211 @@
+local player = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+-- GUI
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "CharcatedHub"
+
+-- BOTÃO FLUTUANTE 🖼️
+local toggle = Instance.new("ImageButton", gui)
+toggle.Size = UDim2.new(0,60,0,60)
+toggle.Position = UDim2.new(0,15,0.5,-30)
+toggle.Image = "rbxassetid://7072719338"
+toggle.BackgroundColor3 = Color3.fromRGB(25,25,35)
+toggle.Draggable = true
+Instance.new("UICorner", toggle)
+
+-- MAIN
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0,580,0,340)
+main.Position = UDim2.new(0.5,-290,0.5,-170)
+main.BackgroundColor3 = Color3.fromRGB(15,15,25)
+main.Visible = true
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main)
+
+-- GLOW
+local stroke = Instance.new("UIStroke", main)
+stroke.Thickness = 2
+
+RunService.RenderStepped:Connect(function()
+	stroke.Color = Color3.fromHSV(tick()%5/5,1,1)
+end)
+
+-- TOPO
+local top = Instance.new("Frame", main)
+top.Size = UDim2.new(1,0,0,35)
+top.BackgroundColor3 = Color3.fromRGB(25,25,35)
+Instance.new("UICorner", top)
+
+local title = Instance.new("TextLabel", top)
+title.Size = UDim2.new(1,0,1,0)
+title.Text = "🌌 Charcated Hub | BaconTeamC4"
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+
+-- BOTÕES
+local close = Instance.new("TextButton", top)
+close.Size = UDim2.new(0,35,1,0)
+close.Position = UDim2.new(1,-35,0,0)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(120,0,0)
+
+local mini = Instance.new("TextButton", top)
+mini.Size = UDim2.new(0,35,1,0)
+mini.Position = UDim2.new(1,-70,0,0)
+mini.Text = "-"
+
+close.MouseButton1Click:Connect(function()
+	main.Visible = false
+end)
+
+local aberto = true
+mini.MouseButton1Click:Connect(function()
+	aberto = not aberto
+	main.Size = aberto and UDim2.new(0,580,0,340) or UDim2.new(0,580,0,35)
+end)
+
+toggle.MouseButton1Click:Connect(function()
+	main.Visible = not main.Visible
+end)
+
+-- MENU
+local menu = Instance.new("Frame", main)
+menu.Size = UDim2.new(0,180,1,-35)
+menu.Position = UDim2.new(0,0,0,35)
+menu.BackgroundColor3 = Color3.fromRGB(20,20,30)
+
+-- CONTENT
+local content = Instance.new("Frame", main)
+content.Size = UDim2.new(1,-180,1,-35)
+content.Position = UDim2.new(0,180,0,35)
+content.BackgroundTransparency = 1
+
+local abas = {}
+
+local function criarAba(nome)
+	local f = Instance.new("Frame", content)
+	f.Size = UDim2.new(1,0,1,0)
+	f.Visible = false
+	f.BackgroundTransparency = 1
+	abas[nome] = f
+	return f
+end
+
+local function abrir(nome)
+	for _,v in pairs(abas) do v.Visible=false end
+	abas[nome].Visible=true
+end
+
+-- MENU BTN
+local function menuBtn(txt,pos,aba)
+	local b = Instance.new("TextButton", menu)
+	b.Size = UDim2.new(1,-10,0,35)
+	b.Position = UDim2.new(0,5,pos,0)
+	b.Text = txt
+	b.BackgroundColor3 = Color3.fromRGB(35,35,50)
+	b.TextColor3 = Color3.new(1,1,1)
+
+	b.MouseButton1Click:Connect(function()
+		abrir(aba)
+	end)
+end
+
+-- ABAS
+local info = criarAba("Info")
+local playerTab = criarAba("Player")
+local tools = criarAba("Tools")
+local visual = criarAba("Visual")
+local misc = criarAba("Misc")
+
+menuBtn("📜 Info",0,"Info")
+menuBtn("👤 Player",0.08,"Player")
+menuBtn("🧰 Tools",0.16,"Tools")
+menuBtn("🎨 Visual",0.24,"Visual")
+menuBtn("⚙️ Config",0.32,"Misc")
+
+-- BOTÃO PADRÃO
+local function btn(parent,text,y,func)
+	local b = Instance.new("TextButton", parent)
+	b.Size = UDim2.new(0.6,0,0,40)
+	b.Position = UDim2.new(0.2,0,y,0)
+	b.Text = text
+	b.BackgroundColor3 = Color3.fromRGB(50,50,70)
+	b.TextColor3 = Color3.new(1,1,1)
+	b.MouseButton1Click:Connect(func)
+end
+
+-- INFO 📜
+local txt = Instance.new("TextLabel", info)
+txt.Size = UDim2.new(1,-20,0,200)
+txt.Position = UDim2.new(0,10,0,10)
+txt.BackgroundTransparency = 1
+txt.TextColor3 = Color3.new(1,1,1)
+txt.TextWrapped = true
+txt.Text = "👑 Criador: BaconTeamC4\n🌌 Charcated Hub V1\n🔥 Neon Edition"
+
+btn(info,"🔗 Join Discord",0.5,function()
+	setclipboard("https://discord.gg/3fcjdcarE")
+end)
+
+-- PLAYER
+local noclip=false
+RunService.Stepped:Connect(function()
+	if noclip and player.Character then
+		for _,v in pairs(player.Character:GetDescendants()) do
+			if v:IsA("BasePart") then v.CanCollide=false end
+		end
+	end
+end)
+
+btn(playerTab,"👻 Noclip",0.1,function()
+	noclip = not noclip
+end)
+
+btn(playerTab,"⚡ Speed",0.25,function()
+	local h=player.Character:FindFirstChild("Humanoid")
+	if h then h.WalkSpeed=50 end
+end)
+
+-- TOOLS 🧰
+btn(tools,"🧲 Pegar Tools Seguro",0.1,function()
+	for _,v in pairs(workspace:GetDescendants()) do
+		if v:IsA("Tool") and v:FindFirstChild("Handle") then
+			v.Parent = player.Backpack
+		end
+	end
+end)
+
+-- VISUAL 🌈
+btn(visual,"🏷️ Tag Rainbow",0.1,function()
+	local head = player.Character:FindFirstChild("Head")
+	if head:FindFirstChild("Tag") then head.Tag:Destroy() end
+	
+	local bill = Instance.new("BillboardGui", head)
+	bill.Size = UDim2.new(0,200,0,50)
+	bill.StudsOffset = Vector3.new(0,3,0)
+
+	local t = Instance.new("TextLabel", bill)
+	t.Size = UDim2.new(1,0,1,0)
+	t.BackgroundTransparency = 1
+	t.Text = "🔥 BaconTeamC4 🔥"
+	t.TextScaled = true
+
+	RunService.RenderStepped:Connect(function()
+		t.TextColor3 = Color3.fromHSV(tick()%5/5,1,1)
+	end)
+end)
+
+-- CONFIG ⚙️
+btn(misc,"🎨 Tema Roxo",0.1,function()
+	main.BackgroundColor3 = Color3.fromRGB(50,0,80)
+end)
+
+btn(misc,"🌑 Reset Tema",0.25,function()
+	main.BackgroundColor3 = Color3.fromRGB(15,15,25)
+end)
+
+-- INICIO
+abrir("Info")
